@@ -1,0 +1,36 @@
+
+Timezone Handling Report for Clinical Trial Data
+-------------------------------------------------
+
+1. Original Timezone
+The patient vital signs dataset originally contained datetime values without any timezone 
+information, meaning they were "naive" timestamps. Naive timestamps do not contain any 
+offset information and do not indicate whether the recorded time corresponds to local 
+time, UTC, or any other regional standard. In clinical settings, naive timestamps can lead 
+to major inconsistencies when data are collected from multiple sites or during daylight 
+saving time transitions.
+
+2. Localization Method
+The first step in making the dataset timezone-aware was to assign a baseline timezone. 
+Consistent with best practices in medical informatics, we localized the datetime index to 
+UTC using tz_localize('UTC'). This does not shift the timestamps; instead, it simply states 
+that the naive timestamps should be interpreted as UTC. UTC is recommended because it has 
+no daylight saving time adjustments, eliminating ambiguity.
+
+3. Timezone Conversion
+After localizing the data to UTC, we converted the timestamps to US/Eastern using 
+tz_convert('US/Eastern'). This conversion correctly adjusts timestamps to reflect the local 
+time of an East Coast clinical site, including daylight saving time transitions.
+
+4. DST Handling
+Using UTC as the baseline timezone prevents common ambiguity issues that arise during the 
+start or end of daylight saving time. For example, the timestamp 2023-03-12 10:00:00+00:00 in UTC 
+corresponds to 2023-03-12 06:00:00-04:00 in US/Eastern. While Eastern Time "jumps" forward during 
+DST, UTC remains constant, ensuring correct time alignment across all patient records.
+
+5. Example
+UTC example: 2025-11-16 01:24:50.357221+00:00
+Converted to Eastern: 2025-11-15 20:24:50.357221-05:00
+
+Overall, storing data in UTC and converting to local time only when needed is the safest, 
+most reproducible method for handling clinical time series data.
